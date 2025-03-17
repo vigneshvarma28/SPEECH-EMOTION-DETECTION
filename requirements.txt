@@ -1,12 +1,11 @@
-gunicorn
-flask
-flask_cors
-os
 numpy
-tensorflow 
-joblib
-pandas 
+pandas
 librosa
-glob
-sklearn
+glob2
+Flask
+flask-cors
+tensorflow
+scikit-learn
+joblib
+
 

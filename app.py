@@ -19,7 +19,7 @@ print("Label encoder classes:", label_encoder.classes_)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    print("Received predict request")
+    print("Received predict request") 
     audio_file = request.files['audio']
     audio_path = 'temp_audio.wav'
     audio_file.save(audio_path)
