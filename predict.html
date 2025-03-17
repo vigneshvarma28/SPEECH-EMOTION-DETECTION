@@ -64,7 +64,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const emotion = sessionStorage.getItem('emotion') || 'Unknown';
-            console.log("Loaded predict.html with emotion:", emotion);
             document.getElementById('emotion').textContent = emotion;
             sessionStorage.removeItem('emotion');
         });

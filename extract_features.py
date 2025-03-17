@@ -6,11 +6,9 @@ import glob
 
 def extract_features(file_path):
     try:
-        # Attempt to load the audio file
         y, sr = librosa.load(file_path, sr=22050)
         print(f"Loaded {file_path} with sample rate {sr}")
         
-        # Extract features
         pitch_proxy = librosa.feature.zero_crossing_rate(y)
         pitch_mean = np.mean(pitch_proxy)
         pitch_std = np.std(pitch_proxy)
@@ -25,18 +23,22 @@ def extract_features(file_path):
         mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         mfcc_mean = np.mean(mfccs, axis=1)
         
-        return {
-            'pitch_mean': pitch_mean,
-            'pitch_std': pitch_std,
-            'spectral_centroid': spectral_centroid,
-            'spectral_bandwidth': spectral_bandwidth,
-            'rms_energy': rms,
-            'energy_mean': energy_mean,
-            'energy_std': energy_std,
-            **{f'mfcc_{i+1}_mean': mfcc_mean[i] for i in range(len(mfcc_mean))}
+        features = {
+            'pitch_mean': float(pitch_mean),
+            'pitch_std': float(pitch_std),
+            'spectral_centroid': float(spectral_centroid),
+            'spectral_bandwidth': float(spectral_bandwidth),
+            'rms_energy': float(rms),
+            'energy_mean': float(energy_mean),
+            'energy_std': float(energy_std),
+            **{f'mfcc_{i+1}_mean': float(mfcc_mean[i]) for i in range(len(mfcc_mean))}
         }
+        # Sanitize
+        for key in features:
+            features[key] = np.nan_to_num(features[key], nan=0.0, posinf=1e5, neginf=-1e5)
+        return features
     except Exception as e:
-        print(f"Error processing {file_path}: {str(e)}")
+        print(f"Error processing {file_path}: {e}")
         return None
 
 def prepare_dataset(audio_dir):
@@ -44,8 +46,7 @@ def prepare_dataset(audio_dir):
     labels = []
     
     files = glob.glob(f"{audio_dir}/Actor_*/*.wav")
-    print(f"Found {len(files)} audio files in {audio_dir}")
-    print("First 5 files:", files[:5])
+    print(f"Found {len(files)} audio files")
     if not files:
         raise FileNotFoundError(f"No .wav files found in {audio_dir}/Actor_*/*.wav")
     
@@ -67,7 +68,7 @@ def prepare_dataset(audio_dir):
             print(f"Processed {i + 1}/{len(files)} files")
     
     if not features_list:
-        raise ValueError("No features extracted from audio files")
+        raise ValueError("No features extracted")
     
     df = pd.DataFrame(features_list)
     df.to_csv('features.csv', index=False)
@@ -75,5 +76,5 @@ def prepare_dataset(audio_dir):
     return df
 
 if __name__ == "__main__":
-    audio_dir = r'C:\Users\VIGNESH VARMA\OneDrive\Desktop\SPEECH EMOTION RECOGNITION\dataset'
+    audio_dir = r'C:\Users\VIGNESH VARMA\OneDrive\Desktop\SPEECH-EMOTION-DETECTION\dataset'
     prepare_dataset(audio_dir)
