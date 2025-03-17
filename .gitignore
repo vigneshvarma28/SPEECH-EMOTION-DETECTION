@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+dataset/
+features.csv
+*.ipynb
+*.pkl
+temp_audio.wav
