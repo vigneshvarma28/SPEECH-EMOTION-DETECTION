@@ -4,8 +4,7 @@ librosa
 glob2
 Flask
 flask-cors
-tensorflow
 scikit-learn
 joblib
-
+tensorflow==2.10.0
 
