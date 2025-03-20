@@ -3,13 +3,14 @@ from flask_cors import CORS
 import os
 import numpy as np
 from extract_features import extract_features
-from tensorflow.keras.models import load_model as keras_load_model
+from tensorflow.keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 
 app = Flask(__name__)
 CORS(app, resources={r"/predict": {"origins": "http://localhost:8000"}})
 
-model = keras_load_model('emotion_model.h5')
+# Load model and label encoder
+model = load_model('emotion_model.h5')
 label_encoder = LabelEncoder()
 label_encoder.classes_ = np.load('label_encoder.npy', allow_pickle=True)
 
@@ -29,8 +30,7 @@ def predict():
     
     print("Features extracted:", feature_dict)
     feature_dict.pop('emotion', None)
-    feature_vector = [list(feature_dict.values())]
-    feature_vector = np.array(feature_vector)
+    feature_vector = np.array([list(feature_dict.values())], dtype=np.float32)
     expected_features = 20
     if feature_vector.shape[1] != expected_features:
         os.remove(audio_path)

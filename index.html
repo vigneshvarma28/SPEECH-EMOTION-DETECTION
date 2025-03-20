@@ -439,16 +439,16 @@
             playBtn.disabled = false;
         }
         
-        // Send audio for analysis (Updated with Render URL)
+        // Send audio for analysis
         async function sendAudioForAnalysis(audioData, filename) {
             updateStatus('Analyzing audio...');
             uploadProgress.style.display = 'block';
             
             const formData = new FormData();
             formData.append('audio', audioData, filename);
-
+            
             try {
-                const response = await fetch('https://speech-emotion-detection.onrender.com/predict', {
+                const response = await fetch('http://127.0.0.1:5000/predict', {
                     method: 'POST',
                     body: formData
                 });
@@ -480,7 +480,7 @@
                     emotionDisplay.style.color = '#00ff7f';
                     break;
                 case 'sad':
-                    emotionDisplay.style.color = '#4169e1';
+                    emotionDisplay.style.color = '#FFFFFF';
                     break;
                 case 'angry':
                     emotionDisplay.style.color = '#ff4d4d';
@@ -548,3 +548,5 @@
     </script>
 </body>
 </html>
+
+

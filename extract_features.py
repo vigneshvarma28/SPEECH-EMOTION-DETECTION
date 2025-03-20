@@ -1,3 +1,4 @@
+
 import os
 import numpy as np
 import pandas as pd
@@ -7,8 +8,6 @@ import glob
 def extract_features(file_path):
     try:
         y, sr = librosa.load(file_path, sr=22050)
-        print(f"Loaded {file_path} with sample rate {sr}")
-        
         pitch_proxy = librosa.feature.zero_crossing_rate(y)
         pitch_mean = np.mean(pitch_proxy)
         pitch_std = np.std(pitch_proxy)
@@ -31,9 +30,8 @@ def extract_features(file_path):
             'rms_energy': float(rms),
             'energy_mean': float(energy_mean),
             'energy_std': float(energy_std),
-            **{f'mfcc_{i+1}_mean': float(mfcc_mean[i]) for i in range(len(mfcc_mean))}
+            **{f'mfcc_{i+1}_mean': float(mfcc_mean[i]) for i in range(13)}
         }
-        # Sanitize
         for key in features:
             features[key] = np.nan_to_num(features[key], nan=0.0, posinf=1e5, neginf=-1e5)
         return features
@@ -43,8 +41,6 @@ def extract_features(file_path):
 
 def prepare_dataset(audio_dir):
     features_list = []
-    labels = []
-    
     files = glob.glob(f"{audio_dir}/Actor_*/*.wav")
     print(f"Found {len(files)} audio files")
     if not files:
@@ -58,17 +54,12 @@ def prepare_dataset(audio_dir):
         if emotion == 'unknown': continue
         
         feature_dict = extract_features(file)
-        if feature_dict is None:
-            continue
-        feature_dict['emotion'] = emotion
-        features_list.append(feature_dict)
-        labels.append(emotion)
+        if feature_dict:
+            feature_dict['emotion'] = emotion
+            features_list.append(feature_dict)
         
         if (i + 1) % 100 == 0:
             print(f"Processed {i + 1}/{len(files)} files")
-    
-    if not features_list:
-        raise ValueError("No features extracted")
     
     df = pd.DataFrame(features_list)
     df.to_csv('features.csv', index=False)
